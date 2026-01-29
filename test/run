@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -e
+[[ ! -f test/bats/bin/bats ]] && git submodule update --init --recursive
+test/bats/bin/bats "${@:-test}"
