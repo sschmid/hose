@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Install dependencies"
+        run: sudo apt-get update && sudo apt-get install -y --fix-missing shellcheck
+
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: "shellcheck"
+        run: test/shellcheck
+
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - debian:12
+          - debian:13
+          - fedora:42
+          - fedora:43
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: "Run tests"
+        run: test/run -st ${{ matrix.target }}
