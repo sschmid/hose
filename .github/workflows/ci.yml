@@ -21,13 +21,12 @@ jobs:
       - name: "shellcheck"
         run: test/shellcheck
 
-  linux:
+  tests:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        image:
-          - debian:12
+        server:
           - debian:13
           - fedora:42
           - fedora:43
@@ -38,4 +37,22 @@ jobs:
           submodules: recursive
 
       - name: "Run tests"
-        run: test/run -si ${{ matrix.image }}
+        run: test/run -c -s ${{ matrix.server }}
+
+  distro:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - debian:13
+          - fedora:42
+          - fedora:43
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: "Run tests"
+        run: test/run -c -d ${{ matrix.distro }}

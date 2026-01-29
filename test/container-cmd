@@ -17,4 +17,7 @@ EOF
 	exit 1
 fi
 
-"${CMD}" "$@"
+if (( $# ))
+then "${CMD}" "$@"
+else echo "${CMD}"
+fi

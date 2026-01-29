@@ -1,0 +1,59 @@
+ARG IMAGE
+ARG TAG
+
+################################################################################
+# debian
+################################################################################
+FROM debian:${TAG} AS base-debian
+RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \
+      openssh-server \
+      rsync \
+      sudo \
+      && apt-get upgrade -y \
+      && apt-get autoremove -y
+
+ARG USERGROUP=sudo
+
+################################################################################
+# fedora
+################################################################################
+FROM fedora:${TAG} AS base-fedora
+RUN dnf install -y --setopt=install_weak_deps=False \
+      openssh-server \
+      rsync \
+      && dnf upgrade -y \
+      && dnf autoremove -y
+
+ARG USERGROUP=wheel
+
+################################################################################
+# common
+################################################################################
+FROM base-${IMAGE} AS server
+ARG USERNAME
+ARG USERGROUP
+
+RUN ssh-keygen -A
+
+RUN useradd -m "${USERNAME}"
+RUN usermod -aG "${USERGROUP}" "${USERNAME}"
+RUN echo "${USERNAME}:password" | chpasswd
+RUN chsh -s /bin/bash "${USERNAME}"
+
+RUN echo "Defaults !lecture"                  | tee /etc/sudoers.d/no-lecture
+RUN echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/all-nopasswd
+RUN echo "PubkeyAuthentication yes"           | tee -a /etc/ssh/sshd_config
+RUN echo "PasswordAuthentication no"          | tee -a /etc/ssh/sshd_config
+RUN echo "PermitEmptyPasswords no"            | tee -a /etc/ssh/sshd_config
+RUN echo "AllowUsers ${USERNAME}"             | tee -a /etc/ssh/sshd_config
+
+WORKDIR "/home/${USERNAME}"
+
+RUN mkdir -m 700 .ssh
+COPY .ssh/hose-test.pub .ssh/authorized_keys
+RUN chmod 600 .ssh/authorized_keys
+RUN chown -R "${USERNAME}:${USERGROUP}" .ssh
+
+USER "${USERNAME}"
+
+CMD ["sudo", "/usr/sbin/sshd", "-D", "-e"]

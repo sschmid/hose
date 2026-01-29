@@ -8,40 +8,34 @@ run_tests_locally() {
 }
 
 run_tests_in_container() {
-	local image="$1"; shift
-	local containerfile="${image%:*}"
-	local tag="${image##*:}"
-
-	test/container-cmd build \
-		--tag "hose/testrunner/${containerfile}/${tag}" \
-		--build-arg TAG="${tag}" \
-		--file "test/testrunners/${containerfile}" \
-		"test"
-
+	local distro="$1"; shift
 	test/container-cmd run --rm -it \
 		-v "${PWD}":/usr/src/project \
 		-w /usr/src/project \
-		"hose/testrunner/${containerfile}/${tag}" \
+		-e TEST_IS_DISTRO_CONTAINER=1 \
+		"${distro}" \
 		test/bats/bin/bats "$@"
 }
 
 main() {
 	local options OPTARG
 	local -i OPTIND
-	local image="local"
 	local -i no_shellcheck=0
-	while getopts "i:s" options; do
+	local distro="local"
+	export TEST_SERVER_BASE_IMAGE="debian:13"
+	while getopts "cd:s:" options; do
 		case "${options}" in
-			i) image="${OPTARG}" ;;
-			s) no_shellcheck=1 ;;
+			c) no_shellcheck=1 ;;
+			d) distro="${OPTARG}" ;;
+			s) TEST_SERVER_BASE_IMAGE="${OPTARG}" ;;
 			*) echo "$0: Invalid option: -${OPTARG}" ;;
 		esac
 	done
 	shift $(( OPTIND - 1 ))
 
-	case "${image}" in
+	case "${distro}" in
 		local) run_tests_locally "${@:-test}" ;;
-		*) run_tests_in_container "${image}" "${@:-test}" ;;
+		*) run_tests_in_container "${distro}" "${@:-test}" ;;
 	esac
 
 	(( no_shellcheck )) || test/shellcheck
