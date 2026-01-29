@@ -8,9 +8,9 @@ run_tests_locally() {
 }
 
 run_tests_in_container() {
-	local target="$1"; shift
-	local containerfile="${target%:*}"
-	local tag="${target##*:}"
+	local image="$1"; shift
+	local containerfile="${image%:*}"
+	local tag="${image##*:}"
 
 	test/container-cmd build \
 		--tag "hose/testrunner/${containerfile}/${tag}" \
@@ -28,20 +28,20 @@ run_tests_in_container() {
 main() {
 	local options OPTARG
 	local -i OPTIND
-	local target="local"
+	local image="local"
 	local -i no_shellcheck=0
-	while getopts "st:" options; do
+	while getopts "i:s" options; do
 		case "${options}" in
+			i) image="${OPTARG}" ;;
 			s) no_shellcheck=1 ;;
-			t) target="${OPTARG}" ;;
 			*) echo "$0: Invalid option: -${OPTARG}" ;;
 		esac
 	done
 	shift $(( OPTIND - 1 ))
 
-	case "${target}" in
+	case "${image}" in
 		local) run_tests_locally "${@:-test}" ;;
-		*) run_tests_in_container "${target}" "${@:-test}" ;;
+		*) run_tests_in_container "${image}" "${@:-test}" ;;
 	esac
 
 	(( no_shellcheck )) || test/shellcheck
