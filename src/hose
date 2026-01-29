@@ -2,7 +2,7 @@
 set -euo pipefail
 
 main() {
-	sudo cat /etc/os-release
+	echo hose
 }
 
 main "$@"

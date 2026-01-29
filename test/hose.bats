@@ -3,12 +3,6 @@ setup() {
 	common_setup
 }
 
-@test "fails" {
-	run hose
-	assert_success
-	refute_output
-}
-
 @test "passes" {
 	run hose
 	assert_success
