@@ -1,0 +1,15 @@
+if (( ${CLICOLOR:-1} )) && [[ -t 1 ]]; then
+	COLOR_RED=$'\033[0;31m'
+	COLOR_GREEN=$'\033[0;32m'
+	COLOR_ORANGE=$'\033[0;33m'
+	COLOR_BLUE=$'\033[0;34m'
+	COLOR_CYAN=$'\033[0;36m'
+	COLOR_RESET=$'\033[0m'
+else
+	COLOR_RED=''
+	COLOR_GREEN=''
+	COLOR_ORANGE=''
+	COLOR_BLUE=''
+	COLOR_CYAN=''
+	COLOR_RESET=''
+fi

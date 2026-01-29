@@ -1,8 +1,58 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1091
 set -euo pipefail
 
-main() {
-	echo hose
+PROGRAM="hose"
+source "lib/all.bash"
+
+hose::usage() {
+	cat <<EOF
+
+╒════╕
+│ ┌┐ │ hose $(cat version.txt)
+└─┘└─┘
+
+usage: ${PROGRAM} [options] <command> [<args>]
+
+options:
+  -c <config>   Path to configuration file (default: ./hose.conf)
+  -h            Show this help message
+EOF
 }
 
-main "$@"
+# for testing and debugging
+__hose_env() {
+	declare -p "$1"
+}
+
+
+hose::main() {
+	HOSE_CONFIG="${HOSE_CONFIG:-"${PWD}/hose.conf"}"
+
+	local options OPTARG
+	local -i OPTIND
+	while getopts ":hc:" options; do
+		case "${options}" in
+			h) hose::usage; return ;;
+			c) HOSE_CONFIG="${OPTARG}" ;;
+			*) fatal "${PROGRAM}: Invalid option: -${OPTARG}" ;;
+		esac
+	done
+	shift $(( OPTIND - 1 ))
+
+	if (( ! $# )); then
+		hose::usage
+		exit 1
+	fi
+
+	[[ "${HOSE_CONFIG}" == /* ]] || HOSE_CONFIG="${PWD}/${HOSE_CONFIG}"
+
+	local cmd="$1"; shift
+	case "${cmd}" in
+		env) __hose_env "$@" ;; # for testing and debugging
+		*) fatal "${PROGRAM}: Unknown command: ${cmd}" ;;
+	esac
+
+}
+
+hose::main "$@"
