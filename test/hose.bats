@@ -59,3 +59,22 @@ assert_usage() {
 	run --separate-stderr hose unknown
 	assert_fatal "${PROGRAM}: Unknown command: unknown"
 }
+
+@test "uses default HOSE_PLUGINS_HOME" {
+	unset HOSE_PLUGINS_HOME
+	run hose env "HOSE_PLUGINS_HOME"
+	assert_success
+	assert_output "declare -- HOSE_PLUGINS_HOME=\"${PWD}/plugins\""
+}
+
+@test "can overwrite HOSE_PLUGINS_HOME" {
+	run hose env "HOSE_PLUGINS_HOME"
+	assert_success
+	assert_output "declare -x HOSE_PLUGINS_HOME=\"${BATS_TEST_DIRNAME}/fixtures/plugins\""
+}
+
+@test "fails when HOSE_PLUGINS_HOME does not exist" {
+	export HOSE_PLUGINS_HOME="${BATS_TEST_TMPDIR}/unknown"
+	run --separate-stderr hose env "HOSE_PLUGINS_HOME"
+	assert_fatal "hose: Plugins directory does not exist: ${HOSE_PLUGINS_HOME}"
+}

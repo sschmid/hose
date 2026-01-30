@@ -12,6 +12,7 @@ common_setup() {
 	TEST_CONFIG="${BATS_TEST_TMPDIR}/test.conf"
 	write_config <<< "test_key = test value"
 
+	export HOSE_PLUGINS_HOME="${BATS_TEST_DIRNAME}/fixtures/plugins"
 	export HOSE_CONFIG="${TEST_CONFIG}"
 }
 

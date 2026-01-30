@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091
+# shellcheck disable=SC1091,SC1094
 set -euo pipefail
 
 PROGRAM="hose"
 source "lib/all.bash"
+source "src/shared/config.bash"
 
 hose::usage() {
 	cat <<EOF
@@ -17,17 +18,32 @@ usage: ${PROGRAM} [options] <command> [<args>]
 options:
   -c <config>   Path to configuration file (default: ./hose.conf)
   -h            Show this help message
+
+commands:
+ config [<section>]   Print config section
+ plugins              Print plugins
 EOF
 }
 
 # for testing and debugging
 __hose_env() {
+	if [[ "$1" == "--config" ]]; then
+		local section="$2"
+		case "${section}" in
+			hose) hose::config::load_hose ;;
+			*) hose::config::declare_vars "$2" ;;
+		esac
+		shift 2
+	fi
+
 	declare -p "$1"
 }
 
-
 hose::main() {
+	HOSE_PLUGINS_HOME="${HOSE_PLUGINS_HOME:-"${PWD}/plugins"}"
 	HOSE_CONFIG="${HOSE_CONFIG:-"${PWD}/hose.conf"}"
+
+	[[ -d "${HOSE_PLUGINS_HOME}" ]] || fatal "${PROGRAM}: Plugins directory does not exist: ${HOSE_PLUGINS_HOME}"
 
 	local options OPTARG
 	local -i OPTIND
@@ -50,6 +66,8 @@ hose::main() {
 	local cmd="$1"; shift
 	case "${cmd}" in
 		env) __hose_env "$@" ;; # for testing and debugging
+		config) source "src/hose-config.bash" "${cmd}" "$@" ;;
+		plugins) source "src/hose-config.bash" "${cmd}" "$@" ;;
 		*) fatal "${PROGRAM}: Unknown command: ${cmd}" ;;
 	esac
 
