@@ -43,7 +43,7 @@ HOSE_PLUGINS_HOME='${config_hose_remote_path}/${HOSE_PLUGINS_HOME##*/}'
 HOSE_CONFIG='${config_hose_remote_path}/${HOSE_CONFIG##*/}'
 EOF
 
-	rsync -acP --delete -e ssh \
+	rsync ${q:+"-q"} -acP --delete -e ssh \
 		"${tmp_env}" \
 		"${HOSE_CONFIG}" \
 		"lib" \
@@ -54,6 +54,7 @@ EOF
 
 hose::run_on_server() {
 	hose::config::load_hose
+	(( LOG_QUIET )) && local -i q=1
 
 	log_info "Copying ${config_hose_ssh_pub_key} to ${config_hose_user}@${config_hose_host}..."
 		log_divider
@@ -63,7 +64,7 @@ hose::run_on_server() {
 
 	log_info "Installing essential packages on ${config_hose_user}@${config_hose_host}..."
 		log_divider
-			ssh -t "${config_hose_user}@${config_hose_host}" "$(cat "src/essential_packages.txt"); hose::server::install_essential_packages"
+			ssh ${q:+"-q"} -t "${config_hose_user}@${config_hose_host}" "$(cat "src/essential_packages.txt"); hose::server::install_essential_packages"
 		log_divider
 	log_info_done "Installing essential packages done."
 
@@ -73,7 +74,7 @@ hose::run_on_server() {
 		log_divider
 	log_info_done "Syncing files done."
 
-	ssh -t "${config_hose_user}@${config_hose_host}" "${config_hose_remote_path}/src/hose-server" "$@"
+	ssh ${q:+"-q"} -t "${config_hose_user}@${config_hose_host}" "${config_hose_remote_path}/src/hose-server" "$@"
 }
 
 # for testing and debugging

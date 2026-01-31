@@ -66,6 +66,8 @@ to_long_cmd() {
 	run hose -q sync
 	assert_success
 	refute_output --partial "[ info ] Syncing files"
+	refute_output --partial "sending incremental file list"
+	refute_output --partial "Connection to ${TEST_SERVER_CONTAINER_IP_ADDRESS} closed."
 }
 
 @test "changes folder to config_hose_remote_path" {
