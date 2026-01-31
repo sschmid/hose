@@ -36,10 +36,15 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Disable AppArmor
+      - name: Prepare GitHub action runnner
         run: |
           sudo systemctl disable --now apparmor || true
           sudo aa-teardown || true
+          mkdir -p -m 700 ~/.ssh
+          echo "Host *" >> ~/.ssh/config
+          echo "    StrictHostKeyChecking no" >> ~/.ssh/config
+          echo "    UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
       - name: "Run tests"
         run: test/run -c -s ${{ matrix.server }}
