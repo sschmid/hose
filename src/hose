@@ -28,6 +28,7 @@ commands:
   down                 Stop or disable services
   status               Show service health and status information
   logs                 Browse server logs
+  reboot               Reboot server
 EOF
 }
 
@@ -121,6 +122,10 @@ hose::main() {
 		config) source "src/hose-config.bash" "${cmd}" "$@" ;;
 		plugins) source "src/hose-config.bash" "${cmd}" "$@" ;;
 		sync | server-env | logs | about | info | up | down | status) hose::run_on_server "${cmd}" "$@" ;;
+		reboot)
+			hose::config::load_hose
+			ssh -t "${config_hose_user}@${config_hose_host}" "sudo reboot"
+			;;
 		*) fatal "${PROGRAM}: Unknown command: ${cmd}" ;;
 	esac
 }
