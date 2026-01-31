@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROGRAM="hose-server"
 
-hose::run() {
+hose::server::run() {
 	local cmd="$1"; shift
 
 	source "src/shared/config.bash"
@@ -103,7 +103,7 @@ hose::server::main() {
 				echo "+ ${BASH_SOURCE[0]} -c ${HOSE_CONFIG} $*"
 			} | gzip > "${log_file}"
 
-			hose::run "${cmd}" "$@" 2>&1 | tee >(gzip >> "${log_file}")
+			hose::server::run "${cmd}" "$@" 2>&1 | tee >(gzip >> "${log_file}")
 			;;
 	esac
 }

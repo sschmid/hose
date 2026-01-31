@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091,SC1094
+# shellcheck disable=SC1091,SC1094,SC2154
 set -euo pipefail
 
 PROGRAM="hose"
@@ -30,7 +30,6 @@ commands:
 EOF
 }
 
-# shellcheck disable=SC2154
 hose::sync_files() {
 	local tmp_env
 	tmp_env="$(mktemp -d)/.env"
@@ -52,6 +51,18 @@ EOF
 
 hose::run_on_server() {
 	hose::config::load_hose
+
+	log_info "Copying ${config_hose_ssh_pub_key} to ${config_hose_user}@${config_hose_host}..."
+		log_divider
+			ssh-copy-id -i "${config_hose_ssh_pub_key}" "${config_hose_user}@${config_hose_host}"
+		log_divider
+	log_info_done "Copying SSH key done."
+
+	log_info "Installing essential packages on ${config_hose_user}@${config_hose_host}..."
+		log_divider
+			ssh -t "${config_hose_user}@${config_hose_host}" "$(cat "src/essential_packages.txt"); hose::server::install_essential_packages"
+		log_divider
+	log_info_done "Installing essential packages done."
 
 	log_info "Syncing files to ${config_hose_user}@${config_hose_host}:${config_hose_remote_path}..."
 		log_divider

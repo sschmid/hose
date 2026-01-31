@@ -1,0 +1,26 @@
+# This function runs on the remote server before syncing files and running addons.
+# Therefore it must not depend on any local variables or functions
+hose::server::install_essential_packages() {
+	local -a packages=(
+		rsync
+	)
+
+	local distro
+	distro="$(source "/etc/os-release" && echo "${ID_LIKE:-"${ID}"}")"
+	[[ "${distro}" == "debian" ]] && command -v raspi-config &>/dev/null && distro="raspbian"
+	echo "[ info ] Detected distro: ${distro}"
+
+	case "${distro}" in
+		debian | raspbian)
+			sudo apt-get update
+			sudo apt-get install -y --no-install-recommends --no-install-suggests "${packages[@]}"
+			;;
+		fedora)
+			sudo dnf install -y --setopt=install_weak_deps=False "${packages[@]}"
+			;;
+		*)
+			echo "[ error ] Unsupported distro: ${distro}"
+			exit 1
+			;;
+	esac
+}

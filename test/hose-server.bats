@@ -50,6 +50,12 @@ teardown() {
 	assert_output --partial "deleting lib/file.txt"
 }
 
+@test "logs quiet" {
+	run hose -q sync
+	assert_success
+	refute_output --partial "[ info ] Syncing files"
+}
+
 @test "changes folder to config_hose_remote_path" {
 	run hose server-env PWD
 	assert_success
@@ -83,15 +89,9 @@ EOF
 
 @test "detects HOSE_DISTRO" {
 	local image="${TEST_SERVER_BASE_IMAGE%:*}"
-	run hose sync
+	run hose server-env HOSE_DISTRO
 	assert_success
-	assert_output --partial "Detected distro: ${image}"
-}
-
-@test "logs quiet" {
-	run hose -q sync
-	assert_success
-	refute_output --partial "Detected distro:"
+	assert_output --partial "declare -- HOSE_DISTRO=\"${image}\""
 }
 
 ################################################################################
