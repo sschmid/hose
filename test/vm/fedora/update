@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -e
+
+prune() {
+	# shellcheck disable=2046
+	sudo dnf remove -y $(dnf repoquery --installonly --latest-limit=-2 -q) || :
+
+	podman container prune
+	podman image prune
+	podman system prune -a
+
+	sudo podman container prune
+	sudo podman image prune
+	sudo podman system prune -a
+}
+
+# prune
+
+sudo dnf install -y \
+	podman \
+	podman-compose
+
+sudo dnf upgrade -y
+sudo dnf autoremove -y
