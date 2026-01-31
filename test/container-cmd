@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if command -v container &>/dev/null; then
+if [[ -v CONTAINER_RUNTIME ]]; then
+	CMD="${CONTAINER_RUNTIME}"
+elif command -v container &>/dev/null; then
 	CMD="container"
 elif command -v podman &>/dev/null; then
 	CMD="podman"
