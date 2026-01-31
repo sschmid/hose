@@ -37,7 +37,7 @@ assert_usage() {
 	assert_output "declare -x HOSE_CONFIG=\"${TEST_CONFIG}\""
 }
 
-@test "uses specified config file (realtive path)" {
+@test "uses specified config file (relative path)" {
 	run hose -c "test.conf" env "HOSE_CONFIG"
 	assert_success
 	assert_output "declare -x HOSE_CONFIG=\"${PWD}/test.conf\""
@@ -67,7 +67,7 @@ assert_usage() {
 	assert_output "declare -- HOSE_PLUGINS_HOME=\"${PWD}/plugins\""
 }
 
-@test "can overwrite HOSE_PLUGINS_HOME" {
+@test "reads HOSE_PLUGINS_HOME from env" {
 	run hose env "HOSE_PLUGINS_HOME"
 	assert_success
 	assert_output "declare -x HOSE_PLUGINS_HOME=\"${BATS_TEST_DIRNAME}/fixtures/plugins\""
