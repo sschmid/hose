@@ -22,11 +22,11 @@ options:
 commands:
   config [<section>]     Print configuration (or specific section if specified)
   plugins                List plugins with their status (✓ used, - unused, x invalid)
-  about                  Show plugin description
-  info                   Show service information and links
-  up                     Start or enable services
-  down                   Stop or disable services
-  status                 Show service health and status information
+  about [<plugins>]      Show plugin description
+  info [<plugins>]       Show service information and links
+  up [<plugins>]         Start or enable services
+  down [<plugins>]       Stop or disable services
+  status [<plugins>]     Show service health and status information
   metrics [<interval>]   Display real-time system metrics (default: 10s refresh)
   logs                   Browse server logs
   reboot                 Reboot server
