@@ -74,6 +74,7 @@ __hose_env() {
 hose::main() {
 	HOSE_PLUGINS_HOME="${HOSE_PLUGINS_HOME:-"${PWD}/plugins"}"
 	HOSE_CONFIG="${HOSE_CONFIG:-"${PWD}/hose.conf"}"
+	CLICOLOR="${CLICOLOR:-1}"
 	LOG_QUIET=0
 
 	[[ -d "${HOSE_PLUGINS_HOME}" ]] || fatal "${PROGRAM}: Plugins directory does not exist: ${HOSE_PLUGINS_HOME}"

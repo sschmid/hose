@@ -6,7 +6,7 @@ server_setup() {
 	fi
 
 	PROGRAM="hose-server"
-	CLICOLOR=0
+	export CLICOLOR=0
 
 	export TEST_SERVER_SSH_PORT=2234
 	TEST_SERVER_CONTAINER_ID="$(test/container-cmd run --rm -d -p ${TEST_SERVER_SSH_PORT}:22 "${TEST_SERVER_IMAGE}")"
