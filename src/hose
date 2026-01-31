@@ -20,8 +20,13 @@ options:
   -h            Show this help message
 
 commands:
- config [<section>]   Print config
- plugins              Print plugins
+  config [<section>]   Print configuration (or specific section if specified)
+  plugins              List plugins with their status (✓ used, - unused, x invalid)
+  about                Show plugin description
+  info                 Show service information and links
+  up                   Start or enable services
+  down                 Stop or disable services
+  status               Show service health and status information
 EOF
 }
 
