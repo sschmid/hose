@@ -1,4 +1,4 @@
-# This function runs on the remote server before syncing files and running addons.
+# This function runs on the remote server before syncing files and running plugins.
 # Therefore it must not depend on any local variables or functions
 hose::server::install_essential_packages() {
 	local -a packages=(

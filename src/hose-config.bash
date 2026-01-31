@@ -18,7 +18,7 @@ hose::config::print_plugins() {
 		all_plugins_lookup["${plugin}"]=1
 	done < <(find "${HOSE_PLUGINS_HOME}" -maxdepth 1 -mindepth 1 -type d | LC_ALL=C sort)
 
-	check_plugin_callback() {
+	print_plugin_callback() {
 		[[ "$2" == "plugins" ]] || return 0
 		local plugin_entry
 		for plugin_entry in $3; do
@@ -31,7 +31,7 @@ hose::config::print_plugins() {
 		done
 	}
 
-	hose::config::parse_section "hose" check_plugin_callback
+	hose::config::parse_section "hose" print_plugin_callback
 
 	for plugin in "${all_plugins[@]}"; do
 		[[ -v selected_plugins_lookup["${plugin}"] ]] || printf "%s[-]%s %s\n" "${COLOR_ORANGE}" "${COLOR_RESET}" "${plugin}"
