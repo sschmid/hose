@@ -20,15 +20,16 @@ options:
   -h            Show this help message
 
 commands:
-  config [<section>]   Print configuration (or specific section if specified)
-  plugins              List plugins with their status (✓ used, - unused, x invalid)
-  about                Show plugin description
-  info                 Show service information and links
-  up                   Start or enable services
-  down                 Stop or disable services
-  status               Show service health and status information
-  logs                 Browse server logs
-  reboot               Reboot server
+  config [<section>]     Print configuration (or specific section if specified)
+  plugins                List plugins with their status (✓ used, - unused, x invalid)
+  about                  Show plugin description
+  info                   Show service information and links
+  up                     Start or enable services
+  down                   Stop or disable services
+  status                 Show service health and status information
+  metrics [<interval>]   Display real-time system metrics (default: 10s refresh)
+  logs                   Browse server logs
+  reboot                 Reboot server
 EOF
 }
 
@@ -121,7 +122,7 @@ hose::main() {
 		env) __hose_env "$@" ;; # for testing and debugging
 		config) source "src/hose-config.bash" "${cmd}" "$@" ;;
 		plugins) source "src/hose-config.bash" "${cmd}" "$@" ;;
-		sync | server-env | logs | about | info | up | down | status) hose::run_on_server "${cmd}" "$@" ;;
+		sync | server-env | metrics | logs | about | info | up | down | status) hose::run_on_server "${cmd}" "$@" ;;
 		reboot)
 			hose::config::load_hose
 			ssh -t "${config_hose_user}@${config_hose_host}" "sudo reboot"

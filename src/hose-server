@@ -84,6 +84,24 @@ hose::server::main() {
 			declare -p "$1"
 			return
 		;;
+		metrics)
+			local -i interval=${2:-10}
+			while true; do
+				clear
+				echo "Host: ${HOSTNAME} ($(date '+%Y-%m-%d %H:%M:%S'))"
+				echo "Uptime: $(uptime)"
+				echo "CPU: $(top -bn1 | grep "Cpu(s)" | awk '{print "User: "$2"%  System: "$4"%  Idle: "$8"%"}')" ; echo
+				echo "Memory:"
+				free -h                                                                                           ; echo
+				df -h /                                                                                           ; echo
+				echo "Rootful containers:"
+				sudo podman stats --no-stream --no-reset 2>/dev/null                                              ; echo
+				echo "Rootless containers:"
+				podman stats --no-stream --no-reset 2>/dev/null                                                   ; echo
+				sleep ${interval}
+			done
+			return
+		;;
 		logs)
 			pushd "${HOSE_STATE_HOME}/logs" &>/dev/null || exit 1
 				local selected_file
