@@ -6,16 +6,28 @@ setup() {
 	write_test_hose_config
 
 	PLUGIN_COMMANDS=(
-		about
-		info
-		up
-		down
-		status
+		a about
+		i info
+		u up
+		d down
+		s status
 	)
 }
 
 teardown() {
 	server_teardown
+}
+
+to_long_cmd() {
+	local cmd="$1"
+	case "$1" in
+		a) cmd="about" ;;
+		i) cmd="info" ;;
+		u) cmd="up" ;;
+		d) cmd="down" ;;
+		s) cmd="status" ;;
+	esac
+	echo "${cmd}"
 }
 
 @test "execs in server container" {
@@ -103,8 +115,8 @@ EOF
 	for cmd in "${PLUGIN_COMMANDS[@]}"; do
 		run hose "${cmd}"
 		assert_success
-		assert_output --partial "plugin-1 ${cmd} test@${TEST_SERVER_CONTAINER_ID}"
-		assert_output --partial "plugin-2 ${cmd} test@${TEST_SERVER_CONTAINER_ID}"
+		assert_output --partial "plugin-1 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
+		assert_output --partial "plugin-2 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
 	done
 }
 
@@ -112,8 +124,8 @@ EOF
 	for cmd in "${PLUGIN_COMMANDS[@]}"; do
 		run hose "${cmd}" plugin-2
 		assert_success
-		refute_output --partial "plugin-1 ${cmd} test@${TEST_SERVER_CONTAINER_ID}"
-		assert_output --partial "plugin-2 ${cmd} test@${TEST_SERVER_CONTAINER_ID}"
+		refute_output --partial "plugin-1 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
+		assert_output --partial "plugin-2 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
 	done
 }
 

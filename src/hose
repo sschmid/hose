@@ -20,16 +20,16 @@ options:
   -h            Show this help message
 
 commands:
-  config [<section>]     Print configuration (or specific section if specified)
-  plugins                List plugins with their status (✓ used, - unused, x invalid)
-  about [<plugins>]      Show plugin description
-  info [<plugins>]       Show service information and links
-  up [<plugins>]         Start or enable services
-  down [<plugins>]       Stop or disable services
-  status [<plugins>]     Show service health and status information
-  metrics [<interval>]   Display real-time system metrics (default: 10s refresh)
-  logs                   Browse server logs
-  reboot                 Reboot server
+  c|config [<section>]     Print configuration (or specific section if specified)
+  p|plugins                List plugins with their status (✓ used, - unused, x invalid)
+  a|about [<plugins>]      Show plugin description
+  i|info [<plugins>]       Show service information and links
+  u|up [<plugins>]         Start or enable services
+  d|down [<plugins>]       Stop or disable services
+  s|status [<plugins>]     Show service health and status information
+  m|metrics [<interval>]   Display real-time system metrics (default: 10s refresh)
+  l|logs                   Browse server logs
+  r|reboot                 Reboot server
 EOF
 }
 
@@ -119,9 +119,20 @@ hose::main() {
 
 	local cmd="$1"; shift
 	case "${cmd}" in
+		c) cmd="config" ;;
+		p) cmd="plugins" ;;
+		a) cmd="about" ;;
+		i) cmd="info" ;;
+		u) cmd="up" ;;
+		d) cmd="down" ;;
+		s) cmd="status" ;;
+		m) cmd="metrics" ;;
+		l) cmd="logs" ;;
+		r) cmd="reboot" ;;
+	esac
+	case "${cmd}" in
 		env) __hose_env "$@" ;; # for testing and debugging
-		config) source "src/hose-config.bash" "${cmd}" "$@" ;;
-		plugins) source "src/hose-config.bash" "${cmd}" "$@" ;;
+		config | plugins) source "src/hose-config.bash" "${cmd}" "$@" ;;
 		sync | server-env | metrics | logs | about | info | up | down | status) hose::run_on_server "${cmd}" "$@" ;;
 		reboot)
 			hose::config::load_hose
