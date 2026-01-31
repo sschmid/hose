@@ -27,6 +27,7 @@ commands:
   up                   Start or enable services
   down                 Stop or disable services
   status               Show service health and status information
+  logs                 Browse server logs
 EOF
 }
 
@@ -119,7 +120,7 @@ hose::main() {
 		env) __hose_env "$@" ;; # for testing and debugging
 		config) source "src/hose-config.bash" "${cmd}" "$@" ;;
 		plugins) source "src/hose-config.bash" "${cmd}" "$@" ;;
-		sync | server-env | about | info | up | down | status) hose::run_on_server "${cmd}" "$@" ;;
+		sync | server-env | logs | about | info | up | down | status) hose::run_on_server "${cmd}" "$@" ;;
 		*) fatal "${PROGRAM}: Unknown command: ${cmd}" ;;
 	esac
 }

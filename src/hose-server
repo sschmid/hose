@@ -43,10 +43,10 @@ hose::server::run() {
 				pushd "${plugin}" &>/dev/null || fatal "${PROGRAM}: Unknown plugin: ${plugin##*/}"
 					log_info "${COLOR_ORANGE}${cmd} ${COLOR_BLUE}${plugin##*/}${COLOR_RESET}"
 					log_divider
-					start="$(date +%s.%N)"
-					(source "plugin.bash"; safe_func_call "${cmd}")
-					end="$(date +%s.%N)"
-					elapsed="$(awk "BEGIN { printf \"%.2f\", ${end} - ${start} }")"
+						start="$(date +%s.%N)"
+						(source "plugin.bash"; safe_func_call "${cmd}")
+						end="$(date +%s.%N)"
+						elapsed="$(awk "BEGIN { printf \"%.2f\", ${end} - ${start} }")"
 					log_divider
 					log_info_done "${COLOR_ORANGE}${cmd} ${COLOR_BLUE}${plugin##*/}${COLOR_RESET} in ${elapsed} seconds"
 				popd >/dev/null || exit 1
@@ -84,6 +84,14 @@ hose::server::main() {
 			declare -p "$1"
 			return
 		;;
+		logs)
+			pushd "${HOSE_STATE_HOME}/logs" &>/dev/null || exit 1
+				local selected_file
+				selected_file="$(find . -mindepth 1 -printf "%P\n" | sort -r | fzf --preview='zcat {}' --preview-window=65%)"
+				zcat "${selected_file}"
+			popd >/dev/null || exit 1
+			return
+		;;
 	esac
 
 	log_info "Detected distro: ${HOSE_DISTRO}"
@@ -100,7 +108,7 @@ hose::server::main() {
 			mkdir -p "${logs_path}"
 			{
 				echo "=== ${now} ==="
-				echo "+ ${BASH_SOURCE[0]} -c ${HOSE_CONFIG} $*"
+				echo "+ ${BASH_SOURCE[0]} -c ${HOSE_CONFIG} ${cmd} $*"
 			} | gzip > "${log_file}"
 
 			hose::server::run "${cmd}" "$@" 2>&1 | tee >(gzip >> "${log_file}")
