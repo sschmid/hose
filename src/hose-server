@@ -85,9 +85,12 @@ hose::server::main() {
 			return
 		;;
 		metrics)
-			local -i interval=${2:-10}
+			tput smcup
+			trap 'tput rmcup' INT
+
+			local -i interval=${1:-10}
 			while true; do
-				clear
+				tput clear
 				echo "Host: ${HOSTNAME} ($(date '+%Y-%m-%d %H:%M:%S'))"
 				echo "Uptime: $(uptime)"
 				echo "CPU: $(top -bn1 | grep "Cpu(s)" | awk '{print "User: "$2"%  System: "$4"%  Idle: "$8"%"}')" ; echo
