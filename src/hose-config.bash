@@ -55,7 +55,6 @@ hose::config::print() {
 			hose::config::print_plugins
 			;;
 	esac
-
 }
 
 hose::config::print "$@"

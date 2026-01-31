@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROGRAM="hose-server"
+
+hose::run() {
+	local cmd="$1"; shift
+
+	source "src/shared/config.bash"
+	hose::config::load_hose
+
+	local -a plugins
+	if (( $# )); then
+		plugins=("$@")
+	else
+		local ref="config_hose_plugins"
+		[[ -v "${ref}" ]] || return 0
+		read -ra plugins <<< "${!ref}"
+	fi
+
+	plugins=("${plugins[@]/#/"${HOSE_PLUGINS_HOME}/"}")
+
+	local plugin total_start total_end total_elapsed
+	total_start="$(date +%s.%N)"
+
+	safe_func_call() {
+		if declare -f "${cmd}" >/dev/null; then
+			"$1"
+		fi
+	}
+
+	case "${cmd}" in
+		about | info)
+			for plugin in "${plugins[@]}"; do
+				pushd "${plugin}" &>/dev/null || fatal "${PROGRAM}: Unknown plugin: ${plugin##*/}"
+					(source "plugin.bash"; safe_func_call "${cmd}")
+				popd >/dev/null || exit 1
+			done
+			;;
+		up | down)
+			local start end elapsed
+			for plugin in "${plugins[@]}"; do
+				pushd "${plugin}" &>/dev/null || fatal "${PROGRAM}: Unknown plugin: ${plugin##*/}"
+					log_info "${COLOR_ORANGE}${cmd} ${COLOR_BLUE}${plugin##*/}${COLOR_RESET}"
+					log_divider
+					start="$(date +%s.%N)"
+					(source "plugin.bash"; safe_func_call "${cmd}")
+					end="$(date +%s.%N)"
+					elapsed="$(awk "BEGIN { printf \"%.2f\", ${end} - ${start} }")"
+					log_divider
+					log_info_done "${COLOR_ORANGE}${cmd} ${COLOR_BLUE}${plugin##*/}${COLOR_RESET} in ${elapsed} seconds"
+				popd >/dev/null || exit 1
+			done
+			total_end="$(date +%s.%N)"
+			total_elapsed="$(awk "BEGIN { printf \"%.2f\", ${total_end} - ${total_start} }")"
+			log_info_done "Total: ${total_elapsed} seconds"
+			;;
+		status)
+			log_info "${COLOR_ORANGE}${cmd}${COLOR_RESET}"
+			for plugin in "${plugins[@]}"; do
+				pushd "${plugin}" &>/dev/null || fatal "${PROGRAM}: Unknown plugin: ${plugin##*/}"
+					(source "plugin.bash"; safe_func_call "${cmd}")
+				popd >/dev/null || exit 1
+			done
+			total_end="$(date +%s.%N)"
+			total_elapsed="$(awk "BEGIN { printf \"%.2f\", ${total_end} - ${total_start} }")"
+			log_info_done "${COLOR_ORANGE}${cmd}${COLOR_RESET} in ${total_elapsed} seconds"
+			;;
+	esac
+}
+
+hose::server::main() {
+	source ".env"
+	source "lib/all.bash"
+
+	HOSE_STATE_HOME="${XDG_STATE_HOME:-"${HOME}/.local/state"}/hose"
+	HOSE_DATA_HOME="${XDG_DATA_HOME:-"${HOME}/.local/share"}/hose"
+	HOSE_DISTRO="$(source "/etc/os-release" && echo "${ID_LIKE:-"${ID}"}")"
+	[[ "${HOSE_DISTRO}" == "debian" ]] && command -v raspi-config &>/dev/null && HOSE_DISTRO="raspbian"
+
+	local cmd="$1"; shift
+	case "${cmd}" in
+		server-env)
+			declare -p "$1"
+			return
+		;;
+	esac
+
+	log_info "Detected distro: ${HOSE_DISTRO}"
+
+	case "${cmd}" in
+		about | info | up | down | status)
+			log_info "Sudo required for $0 $*..."
+			if [[ -t 1 ]] && ! sudo -n true 2>/dev/null; then
+				sudo -v || fatal "This script requires sudo privileges!"
+			fi
+			local now log_file logs_path="${HOSE_STATE_HOME}/logs"
+			now="$(date '+%Y-%m-%d-%H%M%S')"
+			log_file="${logs_path}/${now}.log.gz"
+			mkdir -p "${logs_path}"
+			{
+				echo "=== ${now} ==="
+				echo "+ ${BASH_SOURCE[0]} -c ${HOSE_CONFIG} $*"
+			} | gzip > "${log_file}"
+
+			hose::run "${cmd}" "$@" 2>&1 | tee >(gzip >> "${log_file}")
+			;;
+	esac
+}
+
+pushd "$(dirname -- "${BASH_SOURCE[0]}")/.." &>/dev/null || exit 1
+hose::server::main "$@"
+popd >/dev/null || exit 1

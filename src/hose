@@ -20,9 +20,41 @@ options:
   -h            Show this help message
 
 commands:
- config [<section>]   Print config section
+ config [<section>]   Print config
  plugins              Print plugins
 EOF
+}
+
+# shellcheck disable=SC2154
+hose::sync_files() {
+	local tmp_env
+	tmp_env="$(mktemp -d)/.env"
+	cat <<EOF > "${tmp_env}"
+CLICOLOR='${CLICOLOR}'
+LOG_QUIET='${LOG_QUIET}'
+HOSE_PLUGINS_HOME='${config_hose_remote_path}/${HOSE_PLUGINS_HOME##*/}'
+HOSE_CONFIG='${config_hose_remote_path}/${HOSE_CONFIG##*/}'
+EOF
+
+	rsync -acP --delete -e ssh \
+		"${tmp_env}" \
+		"${HOSE_CONFIG}" \
+		"lib" \
+		"src" \
+		"${HOSE_PLUGINS_HOME}" \
+		"${config_hose_user}@${config_hose_host}:${config_hose_remote_path}"
+}
+
+hose::run_on_server() {
+	hose::config::load_hose
+
+	log_info "Syncing files to ${config_hose_user}@${config_hose_host}:${config_hose_remote_path}..."
+		log_divider
+			hose::sync_files
+		log_divider
+	log_info_done "Syncing files done."
+
+	ssh -t "${config_hose_user}@${config_hose_host}" "${config_hose_remote_path}/src/hose-server" "$@"
 }
 
 # for testing and debugging
@@ -42,15 +74,17 @@ __hose_env() {
 hose::main() {
 	HOSE_PLUGINS_HOME="${HOSE_PLUGINS_HOME:-"${PWD}/plugins"}"
 	HOSE_CONFIG="${HOSE_CONFIG:-"${PWD}/hose.conf"}"
+	LOG_QUIET=0
 
 	[[ -d "${HOSE_PLUGINS_HOME}" ]] || fatal "${PROGRAM}: Plugins directory does not exist: ${HOSE_PLUGINS_HOME}"
 
 	local options OPTARG
 	local -i OPTIND
-	while getopts ":hc:" options; do
+	while getopts ":hc:q" options; do
 		case "${options}" in
 			h) hose::usage; return ;;
 			c) HOSE_CONFIG="${OPTARG}" ;;
+			q) LOG_QUIET=1 ;;
 			*) fatal "${PROGRAM}: Invalid option: -${OPTARG}" ;;
 		esac
 	done
@@ -68,9 +102,9 @@ hose::main() {
 		env) __hose_env "$@" ;; # for testing and debugging
 		config) source "src/hose-config.bash" "${cmd}" "$@" ;;
 		plugins) source "src/hose-config.bash" "${cmd}" "$@" ;;
+		sync | server-env | about | info | up | down | status) hose::run_on_server "${cmd}" "$@" ;;
 		*) fatal "${PROGRAM}: Unknown command: ${cmd}" ;;
 	esac
-
 }
 
 hose::main "$@"

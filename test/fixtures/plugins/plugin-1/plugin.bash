@@ -3,21 +3,21 @@ PLUGIN_NAME="plugin-1"
 source "helper.bash"
 
 about() {
-	log "about"
+	log "about $(whoami)@${HOSTNAME}"
 }
 
 info() {
-	log "info"
+	log "info $(whoami)@${HOSTNAME}"
 }
 
 up() {
-	log "up"
+	log "up $(whoami)@${HOSTNAME}"
 }
 
 down() {
-	log "down"
+	log "down $(whoami)@${HOSTNAME}"
 }
 
 status() {
-	log "status"
+	log "status $(whoami)@${HOSTNAME}"
 }
