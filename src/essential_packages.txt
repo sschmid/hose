@@ -2,6 +2,7 @@
 # Therefore it must not depend on any local variables or functions
 hose::server::install_essential_packages() {
 	local -a packages=(
+		git-delta
 		rsync
 	)
 

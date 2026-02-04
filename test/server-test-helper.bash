@@ -22,6 +22,22 @@ server_setup() {
 	export -f rsync
 }
 
+plugin_setup() {
+	PLUGIN="$1"
+	server_setup
+	unset HOSE_PLUGINS_HOME
+	write_config <<EOF
+[hose]
+user             = ${TEST_SERVER_USERNAME}
+host             = ${TEST_SERVER_CONTAINER_IP_ADDRESS}
+ssh_pub_key      = ${BATS_TEST_DIRNAME}/.ssh/hose-test.pub
+remote_path      = /home/${TEST_SERVER_USERNAME}/hose
+timezone         = Europe/Berlin
+container_subnet = 10.11.12.0/24
+plugins          = ${PLUGIN}
+EOF
+}
+
 server_teardown() {
 	if (( ! TEST_HAS_SERVER )); then
 		return
@@ -49,6 +65,21 @@ container_subnet = 10.11.12.0/24
 plugins          = plugin-1 \\
                    plugin-2
 EOF
+}
+
+assert_check_pass() {
+	assert_success
+	assert_output --partial "[ pass ] ${PLUGIN}: $1"
+}
+
+assert_check_fail() {
+	assert_success
+	assert_output --partial "[ fail ] ${PLUGIN}: $1"
+}
+
+server_mock() {
+	server_exec sudo bash -c "echo '$2' > \"/usr/local/bin/$1\""
+	server_exec sudo chmod +x "/usr/local/bin/$1"
 }
 
 ################################################################################

@@ -7,6 +7,7 @@ hose::server::run() {
 	local cmd="$1"; shift
 
 	source "src/shared/config.bash"
+	source "src/plugin-helpers/all.bash"
 	hose::config::load_hose
 
 	local -a plugins

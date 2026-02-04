@@ -6,6 +6,7 @@ ARG TAG
 ################################################################################
 FROM debian:${TAG} AS base-debian
 RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \
+      git-delta \
       openssh-server \
       rsync \
       sudo \
@@ -19,6 +20,8 @@ ARG USERGROUP=sudo
 ################################################################################
 FROM fedora:${TAG} AS base-fedora
 RUN dnf install -y --setopt=install_weak_deps=False \
+      diff \
+      git-delta \
       openssh-server \
       rsync \
       && dnf upgrade -y \
