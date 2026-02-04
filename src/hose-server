@@ -23,17 +23,20 @@ hose::server::run() {
 	local plugin total_start total_end total_elapsed
 	total_start="$(date +%s.%N)"
 
-	safe_func_call() {
-		if declare -f "${cmd}" >/dev/null; then
-			"$1"
-		fi
+	plugin_invoke() {
+		(
+			source "plugin.bash"
+			if declare -f "$1" >/dev/null; then
+				"$1"
+			fi
+		)
 	}
 
 	case "${cmd}" in
 		about | info)
 			for plugin in "${plugins[@]}"; do
 				pushd "${plugin}" &>/dev/null || fatal "${PROGRAM}: Unknown plugin: ${plugin##*/}"
-					(source "plugin.bash"; safe_func_call "${cmd}")
+					plugin_invoke "${cmd}"
 				popd >/dev/null || exit 1
 			done
 			;;
@@ -44,7 +47,7 @@ hose::server::run() {
 					log_info "${COLOR_ORANGE}${cmd} ${COLOR_BLUE}${plugin##*/}${COLOR_RESET}"
 					log_divider
 						start="$(date +%s.%N)"
-						(source "plugin.bash"; safe_func_call "${cmd}")
+						plugin_invoke "${cmd}"
 						end="$(date +%s.%N)"
 						elapsed="$(awk "BEGIN { printf \"%.2f\", ${end} - ${start} }")"
 					log_divider
@@ -59,7 +62,7 @@ hose::server::run() {
 			log_info "${COLOR_ORANGE}${cmd}${COLOR_RESET}"
 			for plugin in "${plugins[@]}"; do
 				pushd "${plugin}" &>/dev/null || fatal "${PROGRAM}: Unknown plugin: ${plugin##*/}"
-					(source "plugin.bash"; safe_func_call "${cmd}")
+					plugin_invoke "${cmd}"
 				popd >/dev/null || exit 1
 			done
 			total_end="$(date +%s.%N)"
