@@ -15,7 +15,7 @@ teardown() {
 }
 
 @test "status fail" {
-	server_mock  "passwd" "echo 'root P 2020-01-01 0 99999 7 -1'"
+	server_mock "passwd" "echo 'root P 2020-01-01 0 99999 7 -1'"
 	run hose -q status root
 	assert_check_fail "root account locked"
 }
