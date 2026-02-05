@@ -77,6 +77,11 @@ assert_check_fail() {
 	assert_output --partial "[ fail ] ${PLUGIN}: $1"
 }
 
+assert_check_skip() {
+	assert_success
+	assert_output --partial "[ skip ] ${PLUGIN}: $1"
+}
+
 server_mock() {
 	server_exec sudo bash -c "echo '$2' > \"/usr/local/bin/$1\""
 	server_exec sudo chmod +x "/usr/local/bin/$1"

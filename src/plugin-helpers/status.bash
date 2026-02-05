@@ -9,6 +9,10 @@ log_check_fail() {
 		| delta --pager=never --file-style=omit --hunk-header-style=omit >&2 || :
 }
 
+check_skip() {
+	printf "%s[ skip ] %s%s%s: %s\n" "${COLOR_ORANGE}" "${COLOR_BLUE}" "${plugin##*/}" "${COLOR_RESET}" "$1"
+}
+
 check() {
 	if [[ "${status}" == "$2" ]]
 	then log_check_pass "$1"
