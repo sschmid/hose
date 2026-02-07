@@ -84,10 +84,10 @@ to_long_cmd() {
 	run server_exec ls "${TEST_SERVER_HOSE_HOME}/${HOSE_PLUGINS_HOME##*/}"
 	assert_success
 	cat <<EOF | assert_output -
-plugin-1
-plugin-2
-plugin-3
-plugin-no-op
+plugin_1
+plugin_2
+plugin_3
+plugin_no_op
 EOF
 }
 
@@ -117,23 +117,23 @@ EOF
 	for cmd in "${PLUGIN_COMMANDS[@]}"; do
 		run hose "${cmd}"
 		assert_success
-		assert_output --partial "plugin-1 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
-		assert_output --partial "plugin-2 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
+		assert_output --partial "plugin_1 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
+		assert_output --partial "plugin_2 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
 	done
 }
 
 @test "forwards command to specified plugin" {
 	for cmd in "${PLUGIN_COMMANDS[@]}"; do
-		run hose "${cmd}" plugin-2
+		run hose "${cmd}" plugin_2
 		assert_success
-		refute_output --partial "plugin-1 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
-		assert_output --partial "plugin-2 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
+		refute_output --partial "plugin_1 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
+		assert_output --partial "plugin_2 $(to_long_cmd "${cmd}") test@${TEST_SERVER_CONTAINER_ID}"
 	done
 }
 
 @test "plugins may not implement commands" {
 	for cmd in "${PLUGIN_COMMANDS[@]}"; do
-		run hose "${cmd}" plugin-no-op
+		run hose "${cmd}" plugin_no_op
 		assert_success
 	done
 }
@@ -161,10 +161,10 @@ EOF
 }
 
 @test "plugins can access config" {
-	run hose up plugin-1
+	run hose up plugin_1
 	assert_success
 	assert_output --partial "[ info ] From hose config: ${TEST_SERVER_USERNAME}@${TEST_SERVER_CONTAINER_IP_ADDRESS}"
-	assert_output --partial "plugin-1 up ${TEST_SERVER_USERNAME}@${TEST_SERVER_CONTAINER_ID}"
+	assert_output --partial "plugin_1 up ${TEST_SERVER_USERNAME}@${TEST_SERVER_CONTAINER_ID}"
 }
 
 @test "logs to file" {
@@ -172,14 +172,14 @@ EOF
 		server_exec ls "/home/${TEST_SERVER_USERNAME}/.local/state/hose/logs" | wc -l | xargs
 	}
 
-	hose -q  up plugin-1
+	hose -q  up plugin_1
 	run count_files
 	assert_success
 	assert_output "1"
 
 	sleep 2 # Ensure different timestamp
 
-	hose -q  up plugin-1
+	hose -q  up plugin_1
 	run count_files
 	assert_success
 	assert_output "2"

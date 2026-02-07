@@ -62,8 +62,8 @@ ssh_pub_key      = ${BATS_TEST_DIRNAME}/.ssh/hose-test.pub
 remote_path      = /home/${TEST_SERVER_USERNAME}/hose
 timezone         = Europe/Berlin
 container_subnet = 10.11.12.0/24
-plugins          = plugin-1 \\
-                   plugin-2
+plugins          = plugin_1 \\
+                   plugin_2
 EOF
 }
 

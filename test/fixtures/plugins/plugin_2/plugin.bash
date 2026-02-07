@@ -1,4 +1,4 @@
-PLUGIN_NAME="plugin-3"
+PLUGIN_NAME="plugin_2"
 
 about() {
 	echo "${PLUGIN_NAME} about $(whoami)@${HOSTNAME}"

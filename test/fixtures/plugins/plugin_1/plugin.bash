@@ -1,4 +1,4 @@
-PLUGIN_NAME="plugin-1"
+PLUGIN_NAME="plugin_1"
 
 source "helper.bash"
 

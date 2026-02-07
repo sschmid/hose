@@ -13,9 +13,9 @@ ssh_pub_key      = ${ssh_pub_key}
 remote_path      = /home/testuser/hose
 timezone         = Europe/Berlin
 container_subnet = 10.11.12.0/24
-plugins          = plugin-3 \\
-                   plugin-2 \\
-                   plugin-1
+plugins          = plugin_3 \\
+                   plugin_2 \\
+                   plugin_1
 EOF
 }
 
@@ -99,10 +99,10 @@ EOF
 
 @test "prints default config for a plugin" {
 	write_hose_config
-	run hose config -d plugin-1
+	run hose config -d plugin_1
 	assert_success
 	cat <<-EOF | assert_output -
-	[plugin-1]
+	[plugin_1]
 	key1 = value 1
 	key2 = value 2
 	EOF
@@ -110,13 +110,13 @@ EOF
 
 @test "prints default config for multiple plugins" {
 	write_hose_config
-	run hose config -d plugin-2 plugin-1
+	run hose config -d plugin_2 plugin_1
 	assert_success
 	cat <<-EOF | assert_output -
-	[plugin-2]
+	[plugin_2]
 	key1 = value 1
 	key2 = value 2
-	[plugin-1]
+	[plugin_1]
 	key1 = value 1
 	key2 = value 2
 	EOF
@@ -124,13 +124,13 @@ EOF
 
 @test "default configs are optional" {
 	write_hose_config
-	run hose config -d plugin-3 plugin-2 plugin-1
+	run hose config -d plugin_3 plugin_2 plugin_1
 	assert_success
 	cat <<-EOF | assert_output -
-	[plugin-2]
+	[plugin_2]
 	key1 = value 1
 	key2 = value 2
-	[plugin-1]
+	[plugin_1]
 	key1 = value 1
 	key2 = value 2
 	EOF
@@ -151,7 +151,7 @@ ssh_pub_key = /home/testuser/.ssh/test.pub
 remote_path = /home/testuser/hose
 timezone = Europe/Berlin
 container_subnet = 10.11.12.0/24
-plugins = plugin-3 plugin-2 plugin-1
+plugins = plugin_3 plugin_2 plugin_1
 EOF
 }
 
@@ -225,7 +225,7 @@ EOF
 	write_hose_config
 	run hose env --config hose config_hose_plugins
 	assert_success
-	assert_output "declare -- config_hose_plugins=\"plugin-3 plugin-2 plugin-1\""
+	assert_output "declare -- config_hose_plugins=\"plugin_3 plugin_2 plugin_1\""
 }
 
 ################################################################################
@@ -237,46 +237,46 @@ EOF
 	run hose plugins
 	assert_success
 	cat <<EOF | assert_output -
-$(print_plugin_selected "plugin-3")
-$(print_plugin_selected "plugin-2")
-$(print_plugin_selected "plugin-1")
-$(print_plugin_available "plugin-no-op")
+$(print_plugin_selected "plugin_3")
+$(print_plugin_selected "plugin_2")
+$(print_plugin_selected "plugin_1")
+$(print_plugin_available "plugin_no_op")
 EOF
 }
 
 @test "prints invalid plugins" {
 	write_config <<EOF
 [hose]
-plugins = plugin-3 \
-          plugin-2 \
+plugins = plugin_3 \
+          plugin_2 \
           unknown \
-          plugin-1
+          plugin_1
 EOF
 
 	run hose plugins
 	assert_success
 	cat <<EOF | assert_output -
-$(print_plugin_selected "plugin-3")
-$(print_plugin_selected "plugin-2")
+$(print_plugin_selected "plugin_3")
+$(print_plugin_selected "plugin_2")
 $(print_plugin_invalid "unknown")
-$(print_plugin_selected "plugin-1")
-$(print_plugin_available "plugin-no-op")
+$(print_plugin_selected "plugin_1")
+$(print_plugin_available "plugin_no_op")
 EOF
 }
 
 @test "prints available plugins" {
 	write_config <<EOF
 [hose]
-plugins = plugin-3 \
-          plugin-1
+plugins = plugin_3 \
+          plugin_1
 EOF
 
 	run hose plugins
 	assert_success
 	cat <<EOF | assert_output -
-$(print_plugin_selected "plugin-3")
-$(print_plugin_selected "plugin-1")
-$(print_plugin_available "plugin-2")
-$(print_plugin_available "plugin-no-op")
+$(print_plugin_selected "plugin_3")
+$(print_plugin_selected "plugin_1")
+$(print_plugin_available "plugin_2")
+$(print_plugin_available "plugin_no_op")
 EOF
 }
