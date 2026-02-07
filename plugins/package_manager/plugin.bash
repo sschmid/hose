@@ -1,7 +1,3 @@
-about() {
-	echo "Manages package updates and upgrades."
-}
-
 case "${HOSE_DISTRO}" in
 	debian | raspbian)
 		add_root_file "files/999hose-package_manager" \
@@ -19,6 +15,10 @@ case "${HOSE_DISTRO}" in
 			config_package_manager_dnf_install_weak_deps
 	;;
 esac
+
+about() {
+	echo "Manages package updates and upgrades."
+}
 
 up() {
 	write_root_files

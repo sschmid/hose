@@ -5,6 +5,11 @@ check_file_content() {
 	check "$1" "$2"
 }
 
+check_file_exists() {
+	status="$(sudo ls "$1" 2>&1 || :)"
+	check "$1 exists" "$1"
+}
+
 check_root_files() {
 	local path
 	for path in "${!root_files[@]}"; do
@@ -12,16 +17,21 @@ check_root_files() {
 	done
 }
 
+replace_placeholder() {
+	local src="$1"; shift
+	local -a sed_args=()
+	local __plugin_placeholder
+	for __plugin_placeholder in "$@"; do
+		sed_args+=(-e "s|\${${__plugin_placeholder}}|${!__plugin_placeholder}|g")
+	done
+	sed "${sed_args[@]}" "${src}"
+}
+
 add_root_file() {
 	local src="$1" dest="$2"; shift 2
 	local content
 	if (( $# )); then
-		local -a sed_args=()
-		local __plugin_placeholder
-		for __plugin_placeholder in "$@"; do
-			sed_args+=(-e "s|\${${__plugin_placeholder}}|${!__plugin_placeholder}|g")
-		done
-		content="$(sed "${sed_args[@]}" "${src}")"
+		content="$(replace_placeholder "${src}" "$@")"
 	else
 		content="$(cat "${src}")"
 	fi

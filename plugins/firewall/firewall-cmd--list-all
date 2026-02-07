@@ -1,0 +1,16 @@
+hose (default, active)
+  target: ${config_firewall_target}
+  ingress-priority: 0
+  egress-priority: 0
+  icmp-block-inversion: ${config_firewall_icmp_block_inversion}
+  interfaces: ${iface}
+  sources: 
+  services: dhcpv6-client ssh
+  ports: 
+  protocols: 
+  forward: yes
+  masquerade: no
+  forward-ports: 
+  source-ports: 
+  icmp-blocks: ${config_firewall_icmp_blocks}
+  rich rules: 
