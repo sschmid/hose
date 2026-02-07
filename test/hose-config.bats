@@ -136,6 +136,34 @@ EOF
 	EOF
 }
 
+@test "generates default hose.conf" {
+	write_hose_config
+	run hose genconf
+	assert_success
+	cat <<-EOF | assert_output -
+[plugin_2]
+key1 = value 1
+key2 = value 2
+[plugin_1]
+key1 = value 1
+key2 = value 2
+EOF
+}
+
+@test "generates default hose.conf with specified plugins" {
+	write_hose_config
+	run hose genconf plugin_1 plugin_2
+	assert_success
+	cat <<-EOF | assert_output -
+[plugin_1]
+key1 = value 1
+key2 = value 2
+[plugin_2]
+key1 = value 1
+key2 = value 2
+EOF
+}
+
 ################################################################################
 # [hose] config section
 ################################################################################

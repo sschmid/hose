@@ -22,6 +22,7 @@ options:
 commands:
   c|config [<section>]     Print configuration (or specific section if specified)
   p|plugins                List plugins with their status (✓ used, - unused, x invalid)
+  g|genconf [<plugins>]    Print all available plugin config default keys and values
   a|about [<plugins>]      Show plugin description
   i|info [<plugins>]       Show service information and links
   u|up [<plugins>]         Start or enable services
@@ -122,6 +123,7 @@ hose::main() {
 	case "${cmd}" in
 		c) cmd="config" ;;
 		p) cmd="plugins" ;;
+		g) cmd="genconf" ;;
 		a) cmd="about" ;;
 		i) cmd="info" ;;
 		u) cmd="up" ;;
@@ -133,7 +135,7 @@ hose::main() {
 	esac
 	case "${cmd}" in
 		env) __hose_env "$@" ;; # for testing and debugging
-		config | plugins) source "src/hose-config.bash" "${cmd}" "$@" ;;
+		config | plugins | genconf) source "src/hose-config.bash" "${cmd}" "$@" ;;
 		sync | server-env | metrics | logs | about | info | up | down | status) hose::run_on_server "${cmd}" "$@" ;;
 		reboot)
 			hose::config::load_hose

@@ -46,6 +46,16 @@ hose::config::print_defaults() {
 	done
 }
 
+hose::config::generate() {
+	if (( ! $# )); then
+		hose::config::load_hose
+		# shellcheck disable=SC2086,SC2154
+		hose::config::print_defaults ${config_hose_plugins}
+	else
+		hose::config::print_defaults "$@"
+	fi
+}
+
 hose::config::print() {
 	[[ -f "${HOSE_CONFIG}" ]] || fatal "${PROGRAM}: Config file not found: ${HOSE_CONFIG}"
 
@@ -64,6 +74,9 @@ hose::config::print() {
 			;;
 		plugins)
 			hose::config::print_plugins
+			;;
+		genconf)
+			hose::config::generate "$@"
 			;;
 	esac
 }
