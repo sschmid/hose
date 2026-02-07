@@ -2,9 +2,6 @@
 set -e
 
 prune() {
-	# shellcheck disable=2046
-	sudo dnf remove -y $(dnf repoquery --installonly --latest-limit=-2 -q) || :
-
 	podman container prune
 	podman image prune
 	podman system prune -a
@@ -16,10 +13,11 @@ prune() {
 
 # prune
 
-sudo dnf upgrade -y
+sudo apt update
+sudo apt upgrade -y
 
-sudo dnf install -y \
+sudo apt install -y \
 	podman \
 	podman-compose
 
-sudo dnf autoremove -y
+sudo apt autoremove -y

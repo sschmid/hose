@@ -1,0 +1,1 @@
+plugin_1 file3.txt ${placeholder1} ${placeholder2}

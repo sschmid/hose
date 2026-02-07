@@ -1,5 +1,9 @@
 PLUGIN_NAME="plugin_2"
 
+sudo mkdir -p "/etc/${PLUGIN_NAME}"
+add_root_file "files/file1.txt" "/etc/${PLUGIN_NAME}/file1.txt"
+add_root_file "files/file2.txt" "/etc/${PLUGIN_NAME}/file2.txt"
+
 about() {
 	echo "${PLUGIN_NAME} about $(whoami)@${HOSTNAME}"
 }
@@ -10,6 +14,7 @@ info() {
 
 up() {
 	echo "${PLUGIN_NAME} up $(whoami)@${HOSTNAME}"
+	write_root_files
 }
 
 down() {

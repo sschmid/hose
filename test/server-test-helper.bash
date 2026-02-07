@@ -82,6 +82,10 @@ assert_check_skip() {
 	assert_output --partial "[ skip ] ${PLUGIN}: $1"
 }
 
+assert_root_file() {
+	assert_output --partial "[ info ] Writing $1"
+}
+
 server_mock() {
 	server_exec sudo bash -c "echo '$2' > \"/usr/local/bin/$1\""
 	server_exec sudo chmod +x "/usr/local/bin/$1"

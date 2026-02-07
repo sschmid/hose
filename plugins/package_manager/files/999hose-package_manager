@@ -1,0 +1,2 @@
+APT::Install-Recommends "${config_package_manager_apt_install_recommends}";
+APT::Install-Suggests "${config_package_manager_apt_install_suggests}";

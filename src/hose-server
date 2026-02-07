@@ -28,6 +28,7 @@ hose::server::run() {
 		(
 			[[ ! -f "${plugin}/defaults.conf" ]] || lib_config_parse_section "${plugin}/defaults.conf" "" hose::config::declare_var_callback
 			hose::config::load "${plugin##*/}"
+			declare -A root_files=()
 			source "plugin.bash"
 			if declare -f "${cmd}" >/dev/null; then
 				"${cmd}"
