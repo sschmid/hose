@@ -83,7 +83,7 @@ __hose_env() {
 		local section="$2"
 		case "${section}" in
 			hose) hose::config::load_hose ;;
-			*) hose::config::declare_vars "$2" ;;
+			*) hose::config::load "$2" ;;
 		esac
 		shift 2
 	fi

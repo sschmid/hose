@@ -20,6 +20,10 @@ write_config() {
 	cat > "${TEST_CONFIG}"
 }
 
+append_config() {
+	cat >> "${TEST_CONFIG}"
+}
+
 assert_fatal() {
 	assert_failure
 	assert_output "${2:-}"

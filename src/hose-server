@@ -26,9 +26,11 @@ hose::server::run() {
 
 	plugin_invoke() {
 		(
+			[[ ! -f "${plugin}/defaults.conf" ]] || lib_config_parse_section "${plugin}/defaults.conf" "" hose::config::declare_var_callback
+			hose::config::load "${plugin##*/}"
 			source "plugin.bash"
-			if declare -f "$1" >/dev/null; then
-				"$1"
+			if declare -f "${cmd}" >/dev/null; then
+				"${cmd}"
 			fi
 		)
 	}
@@ -37,7 +39,7 @@ hose::server::run() {
 		about | info)
 			for plugin in "${plugins[@]}"; do
 				pushd "${plugin}" &>/dev/null || fatal "${PROGRAM}: Unknown plugin: ${plugin##*/}"
-					plugin_invoke "${cmd}"
+					plugin_invoke
 				popd >/dev/null || exit 1
 			done
 			;;
@@ -48,7 +50,7 @@ hose::server::run() {
 					log_info "${COLOR_ORANGE}${cmd} ${COLOR_BLUE}${plugin##*/}${COLOR_RESET}"
 					log_divider
 						start="$(date +%s.%N)"
-						plugin_invoke "${cmd}"
+						plugin_invoke
 						end="$(date +%s.%N)"
 						elapsed="$(awk "BEGIN { printf \"%.2f\", ${end} - ${start} }")"
 					log_divider
@@ -63,7 +65,7 @@ hose::server::run() {
 			log_info "${COLOR_ORANGE}${cmd}${COLOR_RESET}"
 			for plugin in "${plugins[@]}"; do
 				pushd "${plugin}" &>/dev/null || fatal "${PROGRAM}: Unknown plugin: ${plugin##*/}"
-					plugin_invoke "${cmd}"
+					plugin_invoke
 				popd >/dev/null || exit 1
 			done
 			total_end="$(date +%s.%N)"

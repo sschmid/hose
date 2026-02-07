@@ -160,11 +160,38 @@ EOF
 	assert_success
 }
 
-@test "plugins can access config" {
+@test "plugins can access hose config" {
 	run hose up plugin_1
 	assert_success
 	assert_output --partial "[ info ] From hose config: ${TEST_SERVER_USERNAME}@${TEST_SERVER_CONTAINER_IP_ADDRESS}"
 	assert_output --partial "plugin_1 up ${TEST_SERVER_USERNAME}@${TEST_SERVER_CONTAINER_ID}"
+}
+
+@test "plugins can access default plugin config" {
+	run hose up plugin_1
+	assert_success
+	assert_output --partial "[ info ] From plugin config: key1 = value 1"
+	assert_output --partial "[ info ] From plugin config: key2 = value 2"
+	assert_output --partial "plugin_1 up ${TEST_SERVER_USERNAME}@${TEST_SERVER_CONTAINER_ID}"
+}
+
+@test "plugins can access custom plugin config" {
+	append_config <<EOF
+[plugin_1]
+key2 = test value
+EOF
+
+	run hose up plugin_1
+	assert_success
+	assert_output --partial "[ info ] From plugin config: key1 = value 1"
+	assert_output --partial "[ info ] From plugin config: key2 = test value"
+	assert_output --partial "plugin_1 up ${TEST_SERVER_USERNAME}@${TEST_SERVER_CONTAINER_ID}"
+}
+
+@test "default configs are optional" {
+	run hose up plugin_3
+	assert_success
+	assert_output --partial "plugin_3 up ${TEST_SERVER_USERNAME}@${TEST_SERVER_CONTAINER_ID}"
 }
 
 @test "logs to file" {
