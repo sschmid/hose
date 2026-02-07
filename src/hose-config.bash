@@ -38,6 +38,14 @@ hose::config::print_plugins() {
 	done
 }
 
+hose::config::print_defaults() {
+	local plugin path
+	for plugin in "$@"; do
+		path="${HOSE_PLUGINS_HOME}/${plugin}/defaults.conf"
+		[[ ! -f "${path}" ]] || cat "${path}"
+	done
+}
+
 hose::config::print() {
 	[[ -f "${HOSE_CONFIG}" ]] || fatal "${PROGRAM}: Config file not found: ${HOSE_CONFIG}"
 
@@ -47,6 +55,9 @@ hose::config::print() {
 			if (( ! $# )); then
 				HOSE_CONFIG_CURRENT_SECTION=""
 				hose::config::parse_section "" hose::config::print_all_callback
+			elif [[ "$1" == "-d" ]]; then
+				shift
+				hose::config::print_defaults "$@"
 			else
 				hose::config::parse_section "$1" lib_config_print_kv
 			fi

@@ -97,6 +97,45 @@ EOF
 	done
 }
 
+@test "prints default config for a plugin" {
+	write_hose_config
+	run hose config -d plugin-1
+	assert_success
+	cat <<-EOF | assert_output -
+	[plugin-1]
+	key1 = value 1
+	key2 = value 2
+	EOF
+}
+
+@test "prints default config for multiple plugins" {
+	write_hose_config
+	run hose config -d plugin-2 plugin-1
+	assert_success
+	cat <<-EOF | assert_output -
+	[plugin-2]
+	key1 = value 1
+	key2 = value 2
+	[plugin-1]
+	key1 = value 1
+	key2 = value 2
+	EOF
+}
+
+@test "default configs are optional" {
+	write_hose_config
+	run hose config -d plugin-3 plugin-2 plugin-1
+	assert_success
+	cat <<-EOF | assert_output -
+	[plugin-2]
+	key1 = value 1
+	key2 = value 2
+	[plugin-1]
+	key1 = value 1
+	key2 = value 2
+	EOF
+}
+
 ################################################################################
 # [hose] config section
 ################################################################################
